@@ -25,9 +25,10 @@ Tento projekt je vizualizací goniometrických funkcí na jednotkové kružnici 
 ---
 
 ## ▶️ Jak to spustit
-
-Stačí otevřít `index.html` v libovolném prohlížeči.  
-Nebo si projekt nasadit přes GitHub Pages: `https://xnene.github.io/sincos/`
+Navštivte  GitHub Pages [here](https://xnene.github.io/sincos/):
+```
+https://xnene.github.io/sincos/
+```
 
 ---
 

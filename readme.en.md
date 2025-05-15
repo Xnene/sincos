@@ -34,7 +34,7 @@ This project visualizes trigonometric functions on the **unit circle** using HTM
 Just open the `index.html` file directly in your browser.
 
 ### 🌐 Option 2: View online
-Visit the GitHub Pages version here:
+Visit the GitHub Pages version [here](https://xnene.github.io/sincos/):
 ```
 https://xnene.github.io/sincos/
 ```

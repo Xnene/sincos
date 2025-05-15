@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Jednotková kružnice – sin, cos, tan, cot</title>
+  <title>Jednotková kružnice</title>
   <style>
     canvas {
       border: 1px solid #ccc;
@@ -16,38 +16,71 @@
       padding: 20px;
     }
     .display-dot {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        margin-right: 8px;
-        border-radius: 50%;
-        box-shadow: inset -1px -1px 2px rgba(0,0,0,0.4),
-                    inset 1px 1px 2px rgba(255,255,255,0.6);
-        vertical-align: middle;
-      } 
-
-</style>
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+      border-radius: 50%;
+      box-shadow: inset -1px -1px 2px rgba(0,0,0,0.4),
+                  inset 1px 1px 2px rgba(255,255,255,0.6);
+      vertical-align: middle;
+    }
+  </style>
 </head>
 <body>
-  <h2>Jednotková kružnice – sin, cos, tan, cot</h2>
-  <label for="angleInput">Úhel (°): </label>
+  <h2 id="title"></h2>
+  <label for="angleInput" id="angleLabel"></label>
   <input type="number" id="angleInput" min="0" max="360" value="45">
+  <select id="langSelect">
+    <option value="cz">🇨🇿 Česky</option>
+    <option value="en">🇬🇧 English</option>
+  </select>
   <canvas id="circleCanvas" width="500" height="500"></canvas>
   <div id="values"></div>
 
   <script>
+    const texts = {
+      cz: {
+        title: "Jednotková kružnice – sin, cos, tan, cot",
+        angle: "Úhel (°):",
+        values: {
+          angle: "Úhel",
+          sin: "sin",
+          cos: "cos",
+          tan: "tan",
+          cot: "cot",
+          undef: "<em>nedef.</em>"
+        }
+      },
+      en: {
+        title: "Unit Circle – sin, cos, tan, cot",
+        angle: "Angle (°):",
+        values: {
+          angle: "Angle",
+          sin: "sin",
+          cos: "cos",
+          tan: "tan",
+          cot: "cot",
+          undef: "<em>undefined</em>"
+        }
+      }
+    };
+
     const canvas = document.getElementById('circleCanvas');
     const ctx = canvas.getContext('2d');
     const input = document.getElementById('angleInput');
+    const langSelect = document.getElementById('langSelect');
     const valuesDiv = document.getElementById('values');
+    const title = document.getElementById('title');
+    const angleLabel = document.getElementById('angleLabel');
 
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const radius = 150;
 
-    function draw(angleDeg) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let lang = 'cz';
 
+    function draw(angleDeg) {
       const angleRad = angleDeg * Math.PI / 180;
       const cosVal = Math.cos(angleRad);
       const sinVal = Math.sin(angleRad);
@@ -55,12 +88,12 @@
       const cotVal = sinVal !== 0 ? cosVal / sinVal : null;
 
       const dx = Math.cos(angleRad);
-      const dy = -Math.sin(angleRad); // Invert Y for canvas
+      const dy = -Math.sin(angleRad);
 
       const x = centerX + dx * radius;
       const y = centerY + dy * radius;
 
-
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Osy
       ctx.strokeStyle = '#aaa';
@@ -70,19 +103,13 @@
       ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height);
       ctx.stroke();
 
-      // Popisky os
-      ctx.fillStyle = '#000';
-      ctx.font = '14px sans-serif';
-      ctx.fillText('x', canvas.width - 15, centerY - 5);
-      ctx.fillText('y', centerX + 5, 15);
-
-      // Jednotková kružnice
+      // Kružnice
       ctx.strokeStyle = '#000';
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
       ctx.stroke();
 
-      // Prodloužená úhlová čára (červená, přerušovaná)
+      // Úhlová přímka (prodloužená)
       ctx.setLineDash([5, 5]);
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 1;
@@ -92,7 +119,7 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Vektor úhlu (červený plný)
+      // Vektor úhlu
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -100,97 +127,79 @@
       ctx.lineTo(x, y);
       ctx.stroke();
 
-      // Kosinus – modrá vodorovná
+      // cos
       ctx.strokeStyle = 'blue';
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       ctx.lineTo(x, centerY);
       ctx.stroke();
 
-      // Sinus – zelená svislá
+      // sin
       ctx.strokeStyle = 'green';
       ctx.beginPath();
       ctx.moveTo(x, centerY);
       ctx.lineTo(x, y);
       ctx.stroke();
 
-      const tanX = centerX + Math.sign(cosVal) * radius;
-      const cotY = centerY - Math.sign(sinVal) * radius;
+      // tangenta
+      if (Math.abs(cosVal) > 0.0001) {
+        const tanX = centerX + Math.sign(cosVal) * radius;
+        const t = (tanX - centerX) / dx;
+        const tanY = centerY + dy * t;
+        ctx.strokeStyle = 'orange';
+        ctx.beginPath();
+        ctx.moveTo(tanX, centerY);
+        ctx.lineTo(tanX, tanY);
+        ctx.stroke();
+      }
 
-      // TANGENTA – kolmice na osu X (svislá), vychází z ±radius na ose X
-if (Math.abs(cosVal) > 0.0001) {
-    const tanX = centerX + Math.sign(cosVal) * radius;
-    const t = (tanX - centerX) / dx;
-    const tanY = centerY + dy * t;
-  
-    ctx.strokeStyle = 'orange';
-    ctx.beginPath();
-    ctx.moveTo(tanX, centerY);
-    ctx.lineTo(tanX, tanY);
-    ctx.stroke();
-  }
-  
-  // COTANGENTA – kolmice na osu Y (vodorovná), vychází z ±radius na ose Y
-  if (Math.abs(sinVal) > 0.0001) {
-    const cotY = centerY - Math.sign(sinVal) * radius;
-    const t = (cotY - centerY) / dy;
-    const cotX = centerX + dx * t;
-  
-    ctx.strokeStyle = 'purple';
-    ctx.beginPath();
-    ctx.moveTo(centerX, cotY);
-    ctx.lineTo(cotX, cotY);
-    ctx.stroke();
-  }
-  
-  function angleToPiString(angleDeg) {
-    const frac = angleDeg / 180;
-    if (frac === 0) return '0';
-    if (frac === 1) return 'π';
-    if (frac === 0.5) return 'π/2';
-    if (frac === 2) return '2π';
-    if (frac % 1 === 0) return `${frac}π`;
-    return `${simplifyFraction(angleDeg, 180)}π`;
-  }
-  
-  function simplifyFraction(numerator, denominator) {
-    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
-    const d = gcd(numerator, denominator);
-    const num = numerator / d;
-    const den = denominator / d;
-    return den === 1 ? `${num}` : `${num}/${den}`;
-  }
+      // cotangenta
+      if (Math.abs(sinVal) > 0.0001) {
+        const cotY = centerY - Math.sign(sinVal) * radius;
+        const t = (cotY - centerY) / dy;
+        const cotX = centerX + dx * t;
+        ctx.strokeStyle = 'purple';
+        ctx.beginPath();
+        ctx.moveTo(centerX, cotY);
+        ctx.lineTo(cotX, cotY);
+        ctx.stroke();
+      }
 
-  function angleToPiString(angleDeg) {
-    const frac = angleDeg / 180;
-    if (frac === 0) return '0';
-    if (frac === 1) return 'π';
-    if (frac === 0.5) return 'π/2';
-    if (frac === 2) return '2π';
-    return `${simplifyFraction(angleDeg, 180)}π`;
-  }
-  
-  function simplifyFraction(n, d) {
-    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
-    const g = gcd(n, d);
-    const num = n / g;
-    const den = d / g;
-    return den === 1 ? `${num}` : `${num}/${den}`;
-  }
+      const t = texts[lang];
+      valuesDiv.innerHTML = `
+        <p><strong>${t.values.angle}:</strong> ${angleDeg}° = ${angleToPiString(angleDeg)}</p>
+        <p><span class="display-dot" style="background:green;"></span> ${t.values.sin}: ${sinVal.toFixed(4)}</p>
+        <p><span class="display-dot" style="background:blue;"></span> ${t.values.cos}: ${cosVal.toFixed(4)}</p>
+        <p><span class="display-dot" style="background:orange;"></span> ${t.values.tan}: ${Math.abs(cosVal) > 0.0001 ? tanVal.toFixed(4) : t.values.undef}</p>
+        <p><span class="display-dot" style="background:purple;"></span> ${t.values.cot}: ${Math.abs(sinVal) > 0.0001 ? cotVal.toFixed(4) : t.values.undef}</p>
+      `;
 
-// Výpis hodnot pod sebou s barevnými čtverečky a π
-valuesDiv.innerHTML = `
-  <p><strong>Úhel:</strong> ${angleDeg}° = ${angleToPiString(angleDeg)}</p>
-  <p><span class="display-dot" style="background:green;"></span> sin: ${sinVal.toFixed(4)}</p>
-  <p><span class="display-dot" style="background:blue;"></span> cos: ${cosVal.toFixed(4)}</p>
-  <p><span class="display-dot" style="background:orange;"></span> tan: ${Math.abs(cosVal) > 0.0001 ? tanVal.toFixed(4) : '<em>nedef.</em>'}</p>
-  <p><span class="display-dot" style="background:purple;"></span> cot: ${Math.abs(sinVal) > 0.0001 ? cotVal.toFixed(4) : '<em>nedef.</em>'}</p>
-`;
+      title.textContent = t.title;
+      angleLabel.textContent = t.angle;
     }
 
-    input.addEventListener('input', () => {
+    input.addEventListener('input', () => draw(Number(input.value)));
+    langSelect.addEventListener('change', () => {
+      lang = langSelect.value;
       draw(Number(input.value));
     });
+
+    function angleToPiString(angleDeg) {
+      const frac = angleDeg / 180;
+      if (frac === 0) return '0';
+      if (frac === 1) return 'π';
+      if (frac === 0.5) return 'π/2';
+      if (frac === 2) return '2π';
+      return `${simplifyFraction(angleDeg, 180)}π`;
+    }
+
+    function simplifyFraction(n, d) {
+      function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+      const g = gcd(n, d);
+      const num = n / g;
+      const den = d / g;
+      return den === 1 ? `${num}` : `${num}/${den}`;
+    }
 
     draw(Number(input.value));
   </script>

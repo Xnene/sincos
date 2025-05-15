@@ -2,43 +2,79 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Jednotková kružnice s úhlem</title>
+  <title>Jednotková kružnice – sin, cos, tan, cot</title>
   <style>
     canvas {
       border: 1px solid #ccc;
       background: #fff;
+      display: block;
+      margin: 0 auto;
     }
     body {
       font-family: sans-serif;
+      text-align: center;
       padding: 20px;
     }
-  </style>
+    .display-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        margin-right: 8px;
+        border-radius: 50%;
+        box-shadow: inset -1px -1px 2px rgba(0,0,0,0.4),
+                    inset 1px 1px 2px rgba(255,255,255,0.6);
+        vertical-align: middle;
+      } 
+
+</style>
 </head>
 <body>
-  <h2>Jednotková kružnice s úhlem</h2>
-  <label for="angleInput">Zadej úhel (°): </label>
+  <h2>Jednotková kružnice – sin, cos, tan, cot</h2>
+  <label for="angleInput">Úhel (°): </label>
   <input type="number" id="angleInput" min="0" max="360" value="45">
-  <canvas id="circleCanvas" width="400" height="400"></canvas>
+  <canvas id="circleCanvas" width="500" height="500"></canvas>
+  <div id="values"></div>
 
   <script>
     const canvas = document.getElementById('circleCanvas');
     const ctx = canvas.getContext('2d');
     const input = document.getElementById('angleInput');
-    
+    const valuesDiv = document.getElementById('values');
+
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-    const radius = 150; // reálný poloměr na plátně
+    const radius = 150;
 
     function draw(angleDeg) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const angleRad = angleDeg * Math.PI / 180;
+      const cosVal = Math.cos(angleRad);
+      const sinVal = Math.sin(angleRad);
+      const tanVal = Math.tan(angleRad);
+      const cotVal = sinVal !== 0 ? cosVal / sinVal : null;
+
+      const dx = Math.cos(angleRad);
+      const dy = -Math.sin(angleRad); // Invert Y for canvas
+
+      const x = centerX + dx * radius;
+      const y = centerY + dy * radius;
+
+
 
       // Osy
       ctx.strokeStyle = '#aaa';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY); // osa X
-      ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height); // osa Y
+      ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY);
+      ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height);
       ctx.stroke();
+
+      // Popisky os
+      ctx.fillStyle = '#000';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('x', canvas.width - 15, centerY - 5);
+      ctx.fillText('y', centerX + 5, 15);
 
       // Jednotková kružnice
       ctx.strokeStyle = '#000';
@@ -46,11 +82,17 @@
       ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
       ctx.stroke();
 
-      // Úhel
-      const angleRad = (angleDeg % 360) * Math.PI / 180;
-      const x = centerX + Math.cos(angleRad) * radius;
-      const y = centerY - Math.sin(angleRad) * radius;
+      // Prodloužená úhlová čára (červená, přerušovaná)
+      ctx.setLineDash([5, 5]);
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(centerX + dx * radius * 2, centerY + dy * radius * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
 
+      // Vektor úhlu (červený plný)
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -58,16 +100,98 @@
       ctx.lineTo(x, y);
       ctx.stroke();
 
-      // Volitelné: Zobraz úhel jako text
-      ctx.fillStyle = 'red';
-      ctx.fillText(`${angleDeg}°`, x + 5, y - 5);
+      // Kosinus – modrá vodorovná
+      ctx.strokeStyle = 'blue';
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(x, centerY);
+      ctx.stroke();
+
+      // Sinus – zelená svislá
+      ctx.strokeStyle = 'green';
+      ctx.beginPath();
+      ctx.moveTo(x, centerY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      const tanX = centerX + Math.sign(cosVal) * radius;
+      const cotY = centerY - Math.sign(sinVal) * radius;
+
+      // TANGENTA – kolmice na osu X (svislá), vychází z ±radius na ose X
+if (Math.abs(cosVal) > 0.0001) {
+    const tanX = centerX + Math.sign(cosVal) * radius;
+    const t = (tanX - centerX) / dx;
+    const tanY = centerY + dy * t;
+  
+    ctx.strokeStyle = 'orange';
+    ctx.beginPath();
+    ctx.moveTo(tanX, centerY);
+    ctx.lineTo(tanX, tanY);
+    ctx.stroke();
+  }
+  
+  // COTANGENTA – kolmice na osu Y (vodorovná), vychází z ±radius na ose Y
+  if (Math.abs(sinVal) > 0.0001) {
+    const cotY = centerY - Math.sign(sinVal) * radius;
+    const t = (cotY - centerY) / dy;
+    const cotX = centerX + dx * t;
+  
+    ctx.strokeStyle = 'purple';
+    ctx.beginPath();
+    ctx.moveTo(centerX, cotY);
+    ctx.lineTo(cotX, cotY);
+    ctx.stroke();
+  }
+  
+  function angleToPiString(angleDeg) {
+    const frac = angleDeg / 180;
+    if (frac === 0) return '0';
+    if (frac === 1) return 'π';
+    if (frac === 0.5) return 'π/2';
+    if (frac === 2) return '2π';
+    if (frac % 1 === 0) return `${frac}π`;
+    return `${simplifyFraction(angleDeg, 180)}π`;
+  }
+  
+  function simplifyFraction(numerator, denominator) {
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+    const d = gcd(numerator, denominator);
+    const num = numerator / d;
+    const den = denominator / d;
+    return den === 1 ? `${num}` : `${num}/${den}`;
+  }
+
+  function angleToPiString(angleDeg) {
+    const frac = angleDeg / 180;
+    if (frac === 0) return '0';
+    if (frac === 1) return 'π';
+    if (frac === 0.5) return 'π/2';
+    if (frac === 2) return '2π';
+    return `${simplifyFraction(angleDeg, 180)}π`;
+  }
+  
+  function simplifyFraction(n, d) {
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+    const g = gcd(n, d);
+    const num = n / g;
+    const den = d / g;
+    return den === 1 ? `${num}` : `${num}/${den}`;
+  }
+
+// Výpis hodnot pod sebou s barevnými čtverečky a π
+valuesDiv.innerHTML = `
+  <p><strong>Úhel:</strong> ${angleDeg}° = ${angleToPiString(angleDeg)}</p>
+  <p><span class="display-dot" style="background:green;"></span> sin: ${sinVal.toFixed(4)}</p>
+  <p><span class="display-dot" style="background:blue;"></span> cos: ${cosVal.toFixed(4)}</p>
+  <p><span class="display-dot" style="background:orange;"></span> tan: ${Math.abs(cosVal) > 0.0001 ? tanVal.toFixed(4) : '<em>nedef.</em>'}</p>
+  <p><span class="display-dot" style="background:purple;"></span> cot: ${Math.abs(sinVal) > 0.0001 ? cotVal.toFixed(4) : '<em>nedef.</em>'}</p>
+`;
     }
 
     input.addEventListener('input', () => {
       draw(Number(input.value));
     });
 
-    // První vykreslení
     draw(Number(input.value));
   </script>
 </body>

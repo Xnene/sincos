@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Jednotková kružnice s úhlem</title>
+  <style>
+    canvas {
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Jednotková kružnice s úhlem</h2>
+  <label for="angleInput">Zadej úhel (°): </label>
+  <input type="number" id="angleInput" min="0" max="360" value="45">
+  <canvas id="circleCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('circleCanvas');
+    const ctx = canvas.getContext('2d');
+    const input = document.getElementById('angleInput');
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 150; // reálný poloměr na plátně
+
+    function draw(angleDeg) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Osy
+      ctx.strokeStyle = '#aaa';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY); // osa X
+      ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height); // osa Y
+      ctx.stroke();
+
+      // Jednotková kružnice
+      ctx.strokeStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+
+      // Úhel
+      const angleRad = (angleDeg % 360) * Math.PI / 180;
+      const x = centerX + Math.cos(angleRad) * radius;
+      const y = centerY - Math.sin(angleRad) * radius;
+
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      // Volitelné: Zobraz úhel jako text
+      ctx.fillStyle = 'red';
+      ctx.fillText(`${angleDeg}°`, x + 5, y - 5);
+    }
+
+    input.addEventListener('input', () => {
+      draw(Number(input.value));
+    });
+
+    // První vykreslení
+    draw(Number(input.value));
+  </script>
+</body>
+</html>

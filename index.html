@@ -127,17 +127,17 @@
       ctx.lineTo(x, y);
       ctx.stroke();
 
-      // cos
-      ctx.strokeStyle = 'blue';
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.lineTo(x, centerY);
-      ctx.stroke();
-
-      // sin
+      // sin (kolmý na osu X)
       ctx.strokeStyle = 'green';
       ctx.beginPath();
       ctx.moveTo(x, centerY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      // cos (kolmý na osu Y)
+      ctx.strokeStyle = 'blue';
+      ctx.beginPath();
+      ctx.moveTo(centerX, y);
       ctx.lineTo(x, y);
       ctx.stroke();
 

@@ -2,6 +2,11 @@
 
 Tento projekt je vizualizací goniometrických funkcí na jednotkové kružnici pomocí JavaScriptu a HTML5 `<canvas>`.
 
+## 🌐 Vícejazyčná podpora / Multilingual support
+
+- [🇬🇧 English](README.en.md)
+- [🇨🇿 Čeština](README.md)
+
 ![Ukázka kružnice](preview.png)
 
 ## 🔍 Co to umí
